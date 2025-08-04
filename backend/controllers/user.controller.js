@@ -1,6 +1,6 @@
 // register controller.
 import User from "../models/User.model.js";
-import user from "../models/User.model.js";
+import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import sendVerificationEmail from "../utils/sendmail.utils.js";
 
@@ -28,8 +28,9 @@ const register = async(req, res) => {
     try {
         // if existing user
         const existingUser = await User.findOne({
-            email
+            email,
         });
+        console.log("existing user");
         if(existingUser){
             return res.status(400).json({
                 success: false,
@@ -39,7 +40,8 @@ const register = async(req, res) => {
 
         // user verification token
         const token = crypto.randomBytes(32).toString("hex");
-        const tokenExpiry = new Date.now() + 10*60*60*1000;
+        console.log("token created successful");
+        const tokenExpiry = Date.now() + 10*60*60*1000;
 
         // create a new user 
         const user = await User.create({
@@ -49,6 +51,7 @@ const register = async(req, res) => {
             verificationToken: token,
             verificationTokenExpiry: tokenExpiry,
         });
+        console.log("user created success", user);
 
         if(!user){
             return res.status(200).json({
@@ -59,6 +62,7 @@ const register = async(req, res) => {
 
         // send mail
         await sendVerificationEmail(user.email, token);
+        console.log("email sent successful");
 
         // response to user
         return res.status(200).json({
@@ -67,6 +71,7 @@ const register = async(req, res) => {
         });
 
     } catch (error) {
+        console.log(error.message);
         return res.status(500).json({
             success: true,
             message: "internal server error",
@@ -144,10 +149,38 @@ const login = async (req, res) => {
         }
 
         // check password
+        const isPasswordMatch = await user.comparePassword(password);
+        console.log("password match", isPasswordMatch);
+        if(!isPasswordMatch){
+            return res.status(400).json({
+                success: false,
+                message: "incorrect password",
+            });
+        }
+
+        // jwt token 
+        const jwtToken = jwt.sign({id: user._id},process.env.JWT_SECRET, {
+            expiresIn: "15m"
+        });
         
+        // set cookie
+        const cookieOptions = {
+            expires: new Date(Date.now() + 24*60*60*1000),
+            httpOnly: true, // this will save us from XSS attack
+        }
+        res.cookie("jwtToken", jwtToken, cookieOptions);
+
+        return res.status(200).json({
+            success: true,
+            message: "login successful!",
+        });
+
     } catch (error) {
-        
+        return res.status(500).json({
+            success: false,
+            message: "internal server error",
+        });
     }
 }
 
-export {register, verify};
+export {register, verify, login};
