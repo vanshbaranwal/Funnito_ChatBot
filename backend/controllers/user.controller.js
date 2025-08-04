@@ -158,17 +158,24 @@ const login = async (req, res) => {
             });
         }
 
-        // jwt token 
-        const jwtToken = jwt.sign({id: user._id},process.env.JWT_SECRET, {
-            expiresIn: "15m"
+        // jwt token for the user to access protected routes
+        const accessToken = jwt.sign({id: user._id}, process.env.ACCESSTOKEN_SECRET, {
+            expiresIn: process.env.ACCESSTOKEN_EXPIRY,
         });
+        const refreshToken = jwt.sign({id: user._id}, process.env.REFRESHTOKEN_SECRET, {
+            expiresIn: process.env.REFRESHTOKEN_EXPIRY,
+        });
+        
+        user.refreshToken = refreshToken; // storing the above refreshtoken in the refreshtoken that we created in the User.model file.
+        await user.save();
         
         // set cookie
         const cookieOptions = {
-            expires: new Date(Date.now() + 24*60*60*1000),
+            // expires: new Date(Date.now() + 24*60*60*1000),
             httpOnly: true, // this will save us from XSS attack
         }
-        res.cookie("jwtToken", jwtToken, cookieOptions);
+        res.cookie("accessToken", accessToken, cookieOptions);
+        res.cookie("refreshToken", refreshToken, cookieOptions);
 
         return res.status(200).json({
             success: true,

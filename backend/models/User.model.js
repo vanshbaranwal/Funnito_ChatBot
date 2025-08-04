@@ -34,9 +34,11 @@ const userSchema = new mongoose.Schema({
 
     verificationToken: String,
     verificationTokenExpiry: Date,
-}, {
-    timestamps: true
-});
+    refreshToken: String,
+
+},
+ { timestamps: true }
+);
 
 userSchema.pre("save", async function(next) {
     if(this.isModified("password")) {
