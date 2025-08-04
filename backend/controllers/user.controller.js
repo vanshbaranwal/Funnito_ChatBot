@@ -1,10 +1,11 @@
-// register controller.
 import User from "../models/User.model.js";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import sendVerificationEmail from "../utils/sendmail.utils.js";
+import { Stats } from "fs";
 
 
+// register controller.
 const register = async(req, res) => {
     // get user data from req body
     const {name, email, password} = req.body;
@@ -192,22 +193,95 @@ const login = async (req, res) => {
 
 // get profile controller
 const getProfile = async (req, res) => {
-    // get user id from request object
-    const userId = req.user.id;
+    
+    try {
+        // get user id from request object
+        const userId = req.user.id;
 
-    const user = await User.findById(userId).select("-password"); // stopping password to go inside this user here. so thats why the '-'(minus) symbol is there
+        // find user by id
+        const user = await User.findById(userId).select("-password"); // stopping password to go inside this user here. so thats why the '-'(minus) symbol is there
 
-    if(!user){
-        return res.status(400).json({
-            success: false,
-            message: "password is not correct"
+        // check if user exists
+        if(!user){
+            return res.status(400).json({
+                success: false,
+                message: "password is not correct"
+            });
+        }
+
+        // send response
+        return res.status(200).json({
+            Status: true,
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                isverified: user.isverified,
+                role: user.role,
+            },
+        });
+
+
+    } catch (error) {
+        console.error("error getting user profile", error);
+        return res.status(500).json({
+            status: false,
+            message: "error geting user profile",
+        });
+    }
+};
+
+
+// logout controller
+const logout = async(req, res) => {
+    const token = req.cookies.refreshToken;
+    if(!token){
+        return res.status(401).json({
+            status: false,
+            message: "unauthorized access",
         });
     }
 
-    return res.status(200).json({
-        success: true,
-        message: "user profile acccess"
-    });
+    try {
+
+        // check if the user is logged inn
+        const refreshDecoded = jwt.verify(token, process.env.REFRESHTOKEN_SECRET);
+        const user = await User.findOne({_id: refreshDecoded.id});
+
+        if(!user){
+            return res.status(401).json({
+                status: false,
+                message: "unauthorized access",
+            });
+        }
+
+        user.refreshToken = null; // here we are not doing undefined in place of null because this field will be used later
+        
+        // clear cookie
+        res.cookie("accessToken", "", {
+            httpOnly: true,
+            expires: new Date(0), // date(0) tells the browser that the cookie has already expired. and will cause the browser to delete the cookie immediately.
+        });
+        res.cookie("refreshToken", "", {
+            httpOnly: true,
+            expires: new Date(0),
+        });
+
+
+        // send response
+        return res.status(200).json({
+            status: true,
+            message: "user logged out successfully",
+        });
+
+    } catch (error) {
+        console.error("user log out failed : ", error);
+        return res.status(500).json({
+            status: false,
+            message: "user logout failed"
+        });
+    }
 };
 
-export {register, verify, login, getProfile};
+
+export {register, verify, login, getProfile, logout};

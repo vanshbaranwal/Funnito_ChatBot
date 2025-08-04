@@ -1,11 +1,12 @@
-import User from "../models/User.model";
+import User from "../models/User.model.js";
+import jwt from "jsonwebtoken";
 
 const isLoggedIn = async (req, res, next) => {
     try {
         // get token form cookie
         // const token = req.cookies.jwtToken;
-        const accessToken = res.cookies.accessToken;
-        const refreshToken = res.cookies.refreshToken;
+        const accessToken = req.cookies.accessToken;
+        const refreshToken = req.cookies.refreshToken;
 
         // check for access token if yess -> direct login
         // if no access token then check for refresh token if refresh token is there -> provide new access and refresh token 
@@ -25,7 +26,7 @@ const isLoggedIn = async (req, res, next) => {
             console.log(user.email);
 
             if(!user){
-                res.status(401).json({
+                return res.status(401).json({
                     status: false,
                     message: "unauthorized access",
                 });
@@ -35,7 +36,7 @@ const isLoggedIn = async (req, res, next) => {
                 expiresIn: process.env.ACCESSTOKEN_EXPIRY,
             });
             const newRefreshToken = jwt.sign({id: user._id}, process.env.REFRESHTOKEN_SECRET, {
-                expiresIn: REFRESHTOKEN_EXPIRY,
+                expiresIn: process.env.REFRESHTOKEN_EXPIRY,
             });
 
             user.refreshToken = newRefreshToken;
@@ -86,9 +87,10 @@ const isLoggedIn = async (req, res, next) => {
 
 
     } catch (error) {
+        console.error("this is the error that is coming : ",error);
         return res.status(500).json({
             success: false,
-            message: "internal server error"
+            message: "internal server error!!"
         });
     }
 };
