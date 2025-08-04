@@ -181,6 +181,26 @@ const login = async (req, res) => {
             message: "internal server error",
         });
     }
-}
+};
 
-export {register, verify, login};
+// get profile controller
+const getProfile = async (req, res) => {
+    // get user id from request object
+    const userId = req.user.id;
+
+    const user = await User.findById(userId).select("-password"); // stopping password to go inside this user here. so thats why the '-'(minus) symbol is there
+
+    if(!user){
+        return res.status(400).json({
+            success: false,
+            message: "password is not correct"
+        });
+    }
+
+    return res.status(200).json({
+        success: true,
+        message: "user profile acccess"
+    });
+};
+
+export {register, verify, login, getProfile};
