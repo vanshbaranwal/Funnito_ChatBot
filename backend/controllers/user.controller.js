@@ -49,6 +49,7 @@ const register = async(req, res) => {
             name,
             email,
             password,
+            // isverified: true, // this is just for the testing purpose (to bypass the verify controller)
             verificationToken: token,
             verificationTokenExpiry: tokenExpiry,
         });
@@ -145,7 +146,7 @@ const login = async (req, res) => {
         if(!user.isverified){
             return res.status(400).json({
                 success: false,
-                message: "user not found",
+                message: "your account is not verified",
             });
         }
 

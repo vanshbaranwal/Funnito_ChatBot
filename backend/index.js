@@ -17,9 +17,10 @@ app.use(express.json());
 app.use(urlencoded({extended: true}));
 
 app.use(cors({
-    origin: process.env.BASE_URL,
+    origin: [process.env.BASE_URL, "http://127.0.0.1:5500", "http://localhost:5500"],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization' || "application/json"],
+    credentials: true, // this is for cookie support
 }));
 app.use(cookieParser());
 
