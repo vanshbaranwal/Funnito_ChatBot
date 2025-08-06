@@ -7,7 +7,7 @@ const router = express.Router();
 
 
 router.post("/register", register);
-router.get("/verify/:token", verify);
+router.post("/verify", verify);
 router.post("/login", login);
 router.get("/get-profile", isLoggedIn, getProfile);
 router.post("/logout", isLoggedIn, logout);
