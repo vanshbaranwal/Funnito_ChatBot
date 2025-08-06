@@ -40,9 +40,9 @@ const register = async(req, res) => {
         }
 
         // user verification token
-        const token = crypto.randomBytes(32).toString("hex");
+        const token = crypto.randomBytes(2).toString("hex"); // this will generate a 4 character long string because 1byte = 2hex characters  
         console.log("token created successful");
-        const tokenExpiry = Date.now() + 10*60*60*1000;
+        const tokenExpiry = Date.now() + 10*60*1000; // the token is set to expire in 10 mins 
 
         // create a new user 
         const user = await User.create({
