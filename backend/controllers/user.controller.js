@@ -84,8 +84,8 @@ const register = async(req, res) => {
 // verify controller
 const verify = async (req, res) => {
     try {
-        // get token from params
-        const token = req.params.token;
+        // get token from body
+        const token = req.body.token;
         
         // get user
         const user = await User.findOne({
@@ -113,7 +113,7 @@ const verify = async (req, res) => {
         })
     } catch (error) {
         return res.status(500).json({
-            success: true,
+            success: false,
             message: "internal server error",
         });
     }
