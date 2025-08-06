@@ -17,7 +17,11 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
     if(res.ok){
         localStorage.setItem("token", data.token);
         document.getElementById("loginMessage").textContent = data.message;
-        // show chatbot ui hide login form
+        
+        setTimeout(() => {
+            window.location.href = "/frontend/pages/chatbot.html";
+        }, 3000);
+
     } else{
         // show error message
         document.getElementById("loginMessage").textContent = data.message || "login failed";
