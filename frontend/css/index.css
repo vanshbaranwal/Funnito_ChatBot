@@ -1,9 +1,9 @@
 /* index.html file is connected to this */
 
 *{
-padding: 0;
-margin: 0;
-box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
 }
 a{
     color: black;
@@ -18,14 +18,12 @@ body{
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-direction: column;
+    flex-direction: row;
     margin-top: 42%;
 }
-.start-chatbotBtn-container p{
-    color: black;
-}
 
-#start-chatbotBtn{
+
+.start-upBtn{
     background-color: rgb(255,179,102);
     color: black;
     border-radius: 8px;
@@ -36,7 +34,12 @@ body{
     cursor: pointer;
     transition-duration: 0.5s;
 }
-#start-chatbotBtn:hover{
+.start-upBtn:hover{
     background-color: rgb(165,201,15);
+    color: black;
+}
+
+p{
+    text-align: center;
     color: black;
 }
