@@ -16,7 +16,7 @@ document.getElementById("verifyForm").addEventListener("submit", async function(
     if(res.ok && data.success){
         document.getElementById("verifyMessage").textContent = data.message;
         setTimeout(() => {
-            window.location.href = "/frontend/pages/login.html";
+            window.location.href = "/frontend/pages/chatbot.html";
         }, 3000);
     } else{
         document.getElementById("verifyMessage").textContent = data.message || "verification failed"; 

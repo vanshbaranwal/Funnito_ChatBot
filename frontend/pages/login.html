@@ -4,17 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>login</title>
+    <link rel="stylesheet" href="/frontend/css/login.css">
 </head>
 <body>
+    <h1><u><a href="/frontend/pages/login.html">Funnito!</a></u></h1>
     
     <!-- auth system login form-->
-    <h2>login</h2>
-    <form id="loginForm">
-        <input type="text" id="loginEmail" placeholder="email" required>
-        <input type="password" id="loginPassword" placeholder="Password" required>
-        <button type="submit">Login</button>
-        <p id="loginMessage">loginMessage!!></p>
-    </form>
+    <div id="form-container">
+        <h2>User-Login</h2>
+        <form id="loginForm">
+            <div id="input-row">
+                <input type="text" id="loginEmail" placeholder="email" required>
+                <input type="password" id="loginPassword" placeholder="Password" required>
+                <button type="submit" class="login-btn">Login</button>
+                <p id="loginMessage">loginMessage!!</p>
+            </div>
+        </form>
+    </div>
 
     <script src="/frontend/js/login.js"></script>
 </body>

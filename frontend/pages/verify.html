@@ -4,17 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>verify</title>
+    <link rel="stylesheet" href="/frontend/css/verify.css">
 </head>
 <body>
+    <h1><u><a href="/frontend/pages/verify.html">Funnito!</a></u></h1>
     
     <!-- auth system verify from -->
-     <h2>verify</h2>
-     <form id="verifyForm">
-        <label for="verificationToken">Enter your verification token: </label>
-        <input type="text" id="verificationToken" placeholder="token" required>
-        <button type="submit">verify</button>
-        <p id="verifyMessage">verifymessage!!</p>
-     </form>
+     <div id="form-container">
+         <h2>User-Verification</h2>
+         <form id="verifyForm">
+            <div id="input-row">
+                <label for="verificationToken">We’ve sent a verification token to your registered email. <br> <p id="label-text">Please enter it here to proceed.</p> </label>
+                <input type="text" id="verificationToken" placeholder="token" required>
+                <button type="submit" id="verify-btn">Verify</button>
+                <p id="verifyMessage"></p>
+            </div>
+         </form>
+     </div>
 
     <script src="/frontend/js/verify.js"></script>
 </body>
