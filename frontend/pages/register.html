@@ -4,17 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>register</title>
+    <link rel="stylesheet" href="/frontend/css/register.css">
 </head>
 <body>
+    <h1><u><a href="/frontend/pages/register.html">Funnito!</a></u></h1>
+
     <!-- auth system register form -->
-    <h2>register</h2>
-    <form id="registerForm">
-        <input type="text" id="name" placeholder="username" required>
-        <input type="text" id="registerEmail" placeholder="email" required>
-        <input type="text" id="registerPassword" placeholder="password" required>
-        <button type="submit">RegisterUser</button>
-    </form>
-    <div id="registerMessage"></div>
+    <div id="form-container">
+        <h2>User-Registration</h2>
+        <form id="registerForm">
+            <div id="input-row">                
+                <input type="text" id="name" placeholder="username" required>
+                <input type="text" id="registerEmail" placeholder="email" required>
+                <input type="text" id="registerPassword" placeholder="password" required>
+                <button type="submit" class="register-btn" id="registerBtn">RegisterUser</button>
+                <p id="registerMessage"></p>
+
+
+                <p id="sign-InMessage">already have an account?</p>
+                <a href="/frontend/pages/login.html">
+                    <button type="button" class="register-btn">Sign-In</button>
+                </a>
+
+            </div>
+        </form>
+    </div>
 
     <script src="/frontend/js/register.js"></script>
 </body>

@@ -26,15 +26,18 @@ document.getElementById("registerForm").addEventListener("submit", async functio
 
         if(res.ok){
             document.getElementById("registerMessage").textContent = "Registration successful!!";
+            document.getElementById("registerMessage").style.display = "block";
 
             setTimeout(() => {
                window.location.href = "/frontend/pages/verify.html"; 
             }, 3000);
         } else{
             document.getElementById("registerMessage").textContent = data.message || "Registration failed";
+            document.getElementById("registerMessage").style.display = "block";
         }
     } catch (error) {
         document.getElementById("registerMessage").textContent = "An error occurred";
+        document.getElementById("registerMessage").style.display = "block";
     }
 })
 
