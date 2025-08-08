@@ -4,10 +4,20 @@
     box-sizing: border-box;
 }
 
-a{
+#funnito{
     color: black;
     padding: 4px;
 }
+#funnito-logo{
+    width: 50px;
+    height: 50px;
+    padding: 4px;
+}
+#header{
+    display: flex;
+    justify-content: space-between;
+}
+
 body{
     background-color: rgb(254,107,64);
     color: white;

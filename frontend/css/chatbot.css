@@ -6,43 +6,9 @@
     box-sizing: border-box;
 }
 body{
-    background-color: rgb(170,170,170);
+    background-color: rgb(254,107,64);
     color: white;
 }
 a{
     color: rgb(17,17,17);
-}
-.container{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 35%;
-}
-input{
-    background-color: rgb(224,224,224);
-    border: 5px solid rgb(224,224,224);
-    font-size: 55px;
-    border-radius: 30px;
-    outline: none;
-}
-input::placeholder{  
-    padding-left: 28px;
-    text-decoration: none;
-    color: black;
-    font-size: 25px;
-}
-h1{
-    padding: 8px;
-    text-align: start;
-    font-size: 26px;
-    cursor: pointer;
-}
-#temp-text{
-    text-align: center;
-    font-size: 40px;
-    margin-bottom: 15px;
-}
-#lowertext{
-    text-align: center;
-    font-size: 15px;
 }
