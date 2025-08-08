@@ -21,25 +21,35 @@ const sendVerificationEmail = async (email, token) => {
         });
 
         // verification url
-        const verificationUrl = `${process.env.BASE_URL}/api/v1/users/verify/${token}`;
+        // const verificationUrl = `${process.env.BASE_URL}/api/v1/users/verify/${token}`; // instead of the url i am sending an otp.
 
         // email content
         const mailOptions = {
-            from: `"Authentication app" <${process.env.EMAIL_USER}>`,
+            from: `"Funnito!" <${process.env.EMAIL_USER}>`,
             to: email,
-            subject: "please verify your email address",
-            text: `thank you for registering! Please verify your email address to complete your registration.
-            ${verificationUrl}
-            This verification link will expire in 10 mins.
-            If you did not create an account, please ignore this email.`,
+            subject: "Verify your email address – Your OTP code",
+            text: [
+                "Thank you for registering! Please verify your email address to complete your registration.",
+                "",
+                `Your verification code (OTP) is: ${token}`,
+                "",
+                "This code will expire in 10 minutes.",
+                "If you did not create an account, please ignore this email."
+            ].join('\n'),
+            html: `
+                <p>Thank you for registering! Please verify your email address to complete your registration.</p>
+                <h2 style="color: rgb(254,107,64);">Your verification code (OTP): <b>${token}</b></h2>
+                <p>This code will expire in 10 minutes.<br>If you did not create an account, please ignore this email.</p>
+            `
         };
+
 
         // send email
         const info = await transporter.sendMail(mailOptions);
-        console.log("verification email sent : %s ", info.messageId);
+        // console.log("verification email sent : %s ", info.messageId);
         return true;
     } catch(error){
-      console.error("error sending verification email: ", error);
+    //   console.error("error sending verification email: ", error);
       return false;   
     }
 };
