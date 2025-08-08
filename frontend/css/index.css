@@ -30,6 +30,7 @@ body{
     justify-content: center;
     flex-direction: row;
     margin-top: 42%;
+    gap: 4px;
 }
 
 
