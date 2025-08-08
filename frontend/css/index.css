@@ -7,16 +7,17 @@
 }
 #funnito{
     color: black;
-    padding: 4px;
+    padding: 60px;
 }
-#funnito-logo{
-    width: 50px;
-    height: 50px;
-    padding: 4px;
+#about{
+    color: #000;
+    padding: 60px;
 }
 #header{
     display: flex;
     justify-content: space-between;
+    margin-bottom: 5%;
+    margin-top: 1.5%;
 }
 
 body{
@@ -29,7 +30,7 @@ body{
     align-items: center;
     justify-content: center;
     flex-direction: row;
-    margin-top: 42%;
+    margin-top: 5.5%;
     gap: 4px;
 }
 
@@ -53,4 +54,24 @@ body{
 p{
     text-align: center;
     color: black;
+}
+
+.video-container {
+  position: relative;
+  width: 100%;
+  max-width: 800px;     
+  aspect-ratio: 16/9;    
+  margin: 16px auto;    
+  border-radius: 25px;  
+  overflow: hidden;     
+  box-shadow: 0 10px 30px rgba(248, 232, 232, 0.452);
+  background: #000;      
+}
+.video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;    
+}
+@media (max-width: 480px){
+  .video-container{ max-width: 100%; }
 }
