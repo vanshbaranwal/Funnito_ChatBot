@@ -5,17 +5,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ChatBot!</title>
     <link rel="stylesheet" href="/frontend/css/chatbot.css">
-    <script src="/frontend/js/chatbot.js" defer></script>
 </head>
 <body>
-    <h1><u><a href="/frontend/pages/chatbot.html">Funnito!</a></u></h1>
-
-    <div class="chatbot-popup">
+    <!-- <h1><u><a href="/frontend/pages/chatbot.html">Funnito!</a></u></h1> -->
+    
+    <div class="chatbot-container">
+        
         <div class="chat-header">
-            <div class="header-info">
-                <h2 class="logo-text">ChatBot</h2>
+            funnito chatbot
+        </div>
+        
+        <div class="chat-messages" id="chatMessages">
+            <div class="message bot">
+                <div class="message-content">
+                    hey, i'am your funnito chat bot
+                </div>
             </div>
         </div>
+        
+        <div class="typing-indicator" id="typingIndicator">
+            <div class="typing-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+        
+        <div class="chat-input-container">
+            <div class="selected-files" id="selectedFiles"></div>
+            
+            <div class="input-wrapper">
+                <label for="fileInput" class="file-input-label" title="attach files">
+                    📄
+                </label>
+                <input type="file" id="fileInput" class="file-input" multiple accept=".pdf,image/*">
+                <textarea id="chatInput" class="chat-input" placeholder="type your message...." rows="1"></textarea>
+                <button id="sendButton" class="send-button" title="send message">
+                    ➤
+                </button>
+            </div>
+            
+        </div>
+        
     </div>
+    <script src="/frontend/js/chatbot.js"></script>
 </body>
 </html>
