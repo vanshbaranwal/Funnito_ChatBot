@@ -3,51 +3,602 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChatBot!</title>
-    <link rel="stylesheet" href="/frontend/css/chatbot.css">
+    <title>Echo Chatbot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: rgb(254, 107, 64);
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .chatbot-container {
+            width: 100vw;
+            max-width: none;
+            height: 100vh;
+            background: black;
+            border-radius: 0;
+            box-shadow: none;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: rgb(254, 107, 64);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: black;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .message.bot {
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .message-content {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            word-wrap: break-word;
+        }
+
+        .message.user .message-content {
+            background: rgb(254, 107, 64);
+            color: white;
+        }
+
+        .message.bot .message-content {
+            background: white;
+            color: black;
+            border: 2px solid #e9ecef;
+        }
+
+        .file-preview {
+            margin-top: 10px;
+            padding: 10px;
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .file-preview img {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 8px;
+        }
+
+        .pdf-preview {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: black;
+            border-radius: 8px;
+        }
+
+        .pdf-icon {
+            width: 40px;
+            height: 40px;
+            background: #e74c3c;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .chat-input-container {
+            padding: 20px;
+            background: black;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .chat-input {
+            flex: 1;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            padding: 12px 20px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s ease;
+            resize: none;
+            min-height: 50px;
+            max-height: 100px;
+            background: white;
+            color: black;
+        }
+
+        .chat-input:focus {
+            border-color: rgb(254, 107, 64);
+        }
+
+        .file-input-label {
+            width: 50px;
+            height: 50px;
+            background: rgb(254, 107, 64);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .file-input-label:hover {
+            transform: scale(1.05);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .send-button {
+            width: 50px;
+            height: 50px;
+            background: rgb(254, 107, 64);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .send-button:hover {
+            transform: scale(1.05);
+        }
+
+        .send-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .typing-indicator {
+            display: none;
+            margin-bottom: 15px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .typing-indicator .message-content {
+            padding: 10px 16px;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 18px;
+            max-width: 80px;
+        }
+
+        .message-header {
+            font-size: 10px;
+            color: #999;
+            margin-top: 5px;
+            text-align: right;
+        }
+
+        .message.user .message-header {
+            text-align: right;
+        }
+
+        .message.bot .message-header {
+            text-align: left;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dots span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #999;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.5;
+            }
+            30% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+
+        .selected-files {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .selected-file {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: black;
+        }
+
+        .remove-file {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+    </style>
 </head>
 <body>
-    <!-- <h1><u><a href="/frontend/pages/chatbot.html">Funnito!</a></u></h1> -->
-    
     <div class="chatbot-container">
-        
         <div class="chat-header">
-            funnito chatbot
+            🤖 Echo Chatbot
         </div>
         
         <div class="chat-messages" id="chatMessages">
             <div class="message bot">
                 <div class="message-content">
-                    hey, i'am your funnito chat bot
+                    <div class="message-header">
+                        <span id="initialTime"></span>
+                    </div>
+                    Hello! I'm your Echo Chatbot. Send me messages, images, or PDFs and I'll echo them back to you! 👋
                 </div>
             </div>
         </div>
-        
+
         <div class="typing-indicator" id="typingIndicator">
-            <div class="typing-dots">
-                <span></span>
-                <span></span>
-                <span></span>
+            <div class="message-content">
+                <div class="typing-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
             </div>
         </div>
         
         <div class="chat-input-container">
             <div class="selected-files" id="selectedFiles"></div>
-            
             <div class="input-wrapper">
-                <label for="fileInput" class="file-input-label" title="attach files">
-                    📄
-                </label>
+                <div class="plus-icon" onclick="document.getElementById('fileInput').click()">+</div>
                 <input type="file" id="fileInput" class="file-input" multiple accept=".pdf,image/*">
-                <textarea id="chatInput" class="chat-input" placeholder="type your message...." rows="1"></textarea>
-                <button id="sendButton" class="send-button" title="send message">
-                    ➤
-                </button>
+                
+                <textarea id="chatInput" class="chat-input" placeholder="Ask anything" rows="1"></textarea>
+                
+                <div class="voice-controls">
+                    <div class="voice-icon">🎤</div>
+                    <div class="voice-icon">🎵</div>
+                </div>
             </div>
-            
         </div>
-        
     </div>
-    <script src="/frontend/js/chatbot.js"></script>
+
+    <script>
+        // Get all the elements we need from the HTML
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const sendButton = document.getElementById('sendButton');
+        const fileInput = document.getElementById('fileInput');
+        const selectedFilesDiv = document.getElementById('selectedFiles');
+        const typingIndicator = document.getElementById('typingIndicator');
+        
+        // This array will store all the files the user selects
+        let selectedFilesArray = [];
+        
+        // Set up all the event listeners when the page loads
+        setupEventListeners();
+        
+        // Set the initial time for the welcome message
+        document.getElementById('initialTime').textContent = getCurrentTimeString();
+        
+        // Function to get current time as a formatted string (time only)
+        function getCurrentTimeString() {
+            const now = new Date();
+            const options = {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            };
+            return now.toLocaleTimeString('en-US', options);
+        }
+        
+        function setupEventListeners() {
+            // When user presses Enter in the text input
+            chatInput.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter' && !event.shiftKey) {
+                    event.preventDefault(); // Don't add a new line
+                    sendMessage();
+                }
+            });
+            
+            // When user selects files
+            fileInput.addEventListener('change', function(event) {
+                handleFileSelection(event);
+            });
+            
+            // Auto-resize the text input as user types
+            chatInput.addEventListener('input', function() {
+                chatInput.style.height = 'auto';
+                const newHeight = Math.min(chatInput.scrollHeight, 100);
+                chatInput.style.height = newHeight + 'px';
+            });
+        }
+        
+        // This function runs when user selects files
+        function handleFileSelection(event) {
+            const files = event.target.files; // Get all selected files
+            
+            // Add each file to our array (but don't add duplicates)
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                let isDuplicate = false;
+                
+                // Check if we already have this file
+                for (let j = 0; j < selectedFilesArray.length; j++) {
+                    if (selectedFilesArray[j].name === file.name && selectedFilesArray[j].size === file.size) {
+                        isDuplicate = true;
+                        break;
+                    }
+                }
+                
+                // Only add if it's not a duplicate
+                if (!isDuplicate) {
+                    selectedFilesArray.push(file);
+                }
+            }
+            
+            updateSelectedFilesDisplay(); // Show the files on screen
+            event.target.value = ''; // Clear the file input
+        }
+        
+        // Show all selected files on the screen
+        function updateSelectedFilesDisplay() {
+            selectedFilesDiv.innerHTML = ''; // Clear previous files
+            
+            // Create a display element for each file
+            for (let i = 0; i < selectedFilesArray.length; i++) {
+                const file = selectedFilesArray[i];
+                const fileElement = document.createElement('div');
+                fileElement.className = 'selected-file';
+                
+                // Choose the right icon for the file type
+                const fileIcon = file.type.indexOf('image/') === 0 ? '🖼️' : '📄';
+                
+                // Shorten long file names
+                let fileName = file.name;
+                if (fileName.length > 20) {
+                    fileName = fileName.substring(0, 20) + '...';
+                }
+                
+                // Create the HTML for this file
+                fileElement.innerHTML = 
+                    '<span>' + fileIcon + ' ' + fileName + '</span>' +
+                    '<button class="remove-file" onclick="removeFile(' + i + ')">×</button>';
+                
+                selectedFilesDiv.appendChild(fileElement);
+            }
+        }
+        
+        // Remove a file from the selected files list
+        function removeFile(index) {
+            selectedFilesArray.splice(index, 1); // Remove the file at this position
+            updateSelectedFilesDisplay(); // Update the display
+        }
+        
+        // Main function that sends the message
+        function sendMessage() {
+            const message = chatInput.value.trim(); // Get the text and remove extra spaces
+            const filesToSend = selectedFilesArray.slice(); // Make a copy of the files array
+            
+            // Don't send if there's no message and no files
+            if (!message && filesToSend.length === 0) {
+                return;
+            }
+            
+            // Disable the input while we're processing
+            chatInput.disabled = true;
+            
+            // Add the user's message to the chat
+            if (message || filesToSend.length > 0) {
+                addMessage('user', message, filesToSend);
+            }
+            
+            // Clear the input
+            chatInput.value = '';
+            selectedFilesArray = [];
+            updateSelectedFilesDisplay();
+            chatInput.style.height = 'auto';
+            
+            // Show that the bot is typing
+            showTypingIndicator();
+            
+            // Wait a bit (to make it feel more realistic), then show the bot's response
+            const waitTime = 1000 + Math.random() * 1000; // Random time between 1-2 seconds
+            setTimeout(function() {
+                hideTypingIndicator();
+                addMessage('bot', message, filesToSend); // Echo the message back
+                
+                // Re-enable the input
+                chatInput.disabled = false;
+                chatInput.focus();
+            }, waitTime);
+        }
+        
+        // Show the typing indicator
+        function showTypingIndicator() {
+            chatMessages.appendChild(typingIndicator);
+            typingIndicator.style.display = 'block';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // Hide the typing indicator
+        function hideTypingIndicator() {
+            typingIndicator.style.display = 'none';
+            if (typingIndicator.parentNode === chatMessages) {
+                chatMessages.removeChild(typingIndicator);
+            }
+        }
+        
+        // Add a message to the chat
+        function addMessage(sender, text, files) {
+            // Create the main message container
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message ' + sender;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            
+            // Create the timestamp (at the top right corner inside the message)
+            const headerDiv = document.createElement('div');
+            headerDiv.className = 'message-header';
+            const timestamp = getCurrentTimeString();
+            headerDiv.textContent = timestamp;
+            contentDiv.appendChild(headerDiv);
+            
+            // Add the text if there is any
+            if (text) {
+                const textDiv = document.createElement('div');
+                if (sender === 'bot' && text) {
+                    textDiv.textContent = 'Echo: ' + text;
+                } else {
+                    textDiv.textContent = text;
+                }
+                contentDiv.appendChild(textDiv);
+            }
+            
+            // Add file previews if there are any files
+            if (files && files.length > 0) {
+                for (let i = 0; i < files.length; i++) {
+                    createFilePreview(files[i], contentDiv);
+                }
+            }
+            
+            messageDiv.appendChild(contentDiv);
+            chatMessages.appendChild(messageDiv);
+            
+            // Scroll to the bottom to show the new message
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // Create a preview for a file
+        function createFilePreview(file, parentElement) {
+            const previewDiv = document.createElement('div');
+            previewDiv.className = 'file-preview';
+            
+            if (file.type.indexOf('image/') === 0) {
+                // It's an image file
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(file);
+                img.alt = file.name;
+                
+                // Clean up the URL when the image loads (to save memory)
+                img.onload = function() {
+                    URL.revokeObjectURL(img.src);
+                };
+                
+                previewDiv.appendChild(img);
+            } else if (file.type === 'application/pdf') {
+                // It's a PDF file
+                const pdfDiv = document.createElement('div');
+                pdfDiv.className = 'pdf-preview';
+                
+                const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
+                
+                pdfDiv.innerHTML = 
+                    '<div class="pdf-icon">PDF</div>' +
+                    '<div>' +
+                        '<div style="font-weight: 500;">' + file.name + '</div>' +
+                        '<div style="font-size: 12px; color: #666;">' + fileSizeMB + ' MB</div>' +
+                    '</div>';
+                
+                previewDiv.appendChild(pdfDiv);
+            } else {
+                // It's some other type of file
+                const fileDiv = document.createElement('div');
+                fileDiv.className = 'pdf-preview';
+                
+                const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
+                
+                fileDiv.innerHTML = 
+                    '<div class="pdf-icon">📄</div>' +
+                    '<div>' +
+                        '<div style="font-weight: 500;">' + file.name + '</div>' +
+                        '<div style="font-size: 12px; color: #666;">' + fileSizeMB + ' MB</div>' +
+                    '</div>';
+                
+                previewDiv.appendChild(fileDiv);
+            }
+            
+            parentElement.appendChild(previewDiv);
+        }
+    </script>
 </body>
 </html>
