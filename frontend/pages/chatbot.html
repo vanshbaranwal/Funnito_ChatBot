@@ -14,19 +14,29 @@
         <div class="chatbot-header">
             <h2>Funnito Bot!</h2>
         </div>
-        <div class="chatbot-messages">
-            <div class="message bot">Hello! 👋 I'm your chatbot.</div>
-            <div class="message user">Hi! This looks cool.</div>
+        <div class="chatbot-messages" id="messages">
+            <div class="message bot">Hello! 👋 I'm your echo chatbot.</div>
         </div>
+
+        <!-- typing indicator -->
+         <div class="typing-indicator" id="typingIndicator">
+            <div class="typing-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+         </div>
+         
+        <!-- input box -->
         <div class="chatbot-input">
             <div class="input-wrapper">
-                <button class="attach-btn">+</button>
-                <textarea placeholder="Type a message..."></textarea>
-                <button class="send-btn">🡱</button>
+                <button class="attach-btn" id="attachBtn">+</button>
+                <textarea id="messageInput" placeholder="Type a message..." rows="1"></textarea>
+                <button class="send-btn" id="sendBtn">🡱</button>
             </div>
         </div>
     </div>
-    <p>Funnito! can make mistakes.</p>
+    <p class="footer-text">Funnito! can make mistakes.</p>
 
     <script src="/frontend/js/chatbot.js"></script>
 </body>
