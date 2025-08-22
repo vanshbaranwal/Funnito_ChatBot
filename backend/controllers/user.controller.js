@@ -178,6 +178,13 @@ const login = async (req, res) => {
             });
         }
 
+        // 
+        if(user.auth_provider === 'google'){
+            return res.status(400).json({
+                success: false,
+                message: "please use google sign-in for this account."
+            })
+        }
         // check if the user is verified
         if(!user.isverified){
             return res.status(400).json({
@@ -345,5 +352,121 @@ const logout = async(req, res) => {
     }
 };
 
+// google oauth controller
+const googleAuth = async(req, res) => {
+    try {
+        // get the token from authorization header
+        const authHeader = req.headers.authorization;
+        const token = authHeader && authHeader.split(' ')[1]; // bearer token
+        if(!token){
+            return res.status(401).json({
+                success: false,
+                message: "no access token provided",
+            });
+        }
 
-export {register, verify, login, getProfile, logout};
+        // get user info from supabase using the token
+        const {data: {user: googleUser}, error} = await supabase.auth.getUser(token);
+
+        if(error || !googleUser){
+            return res.status(401).json({
+                success: false,
+                message: "invalid token or google authentication failed"
+            });
+        }
+
+        // chech if user exists in your custom users table
+        const {date: existingUser, error: findError} = await supabase
+            .from('users')
+            .select('*')
+            .eq('email', googleUser.email)
+            .single();
+
+        let user = existingUser;
+
+        // if user doesnt exist create them 
+        if(findError && findError.code === 'PGRST116'){ // no rows found
+            const {data: newUser, error: insertError} = await supabase
+                .from('users')
+                .insert([{
+                    name: googleUser.user_metadata?.full_name || googleUser.user_metadata?.name || googleUser.email.split('@')[0],
+                    email: googleUser.email,
+                    password: null, // no password for google users
+                    isverified: true, // google users are auto verified
+                    google_id: googleUser.id, // store google id
+                    auth_provider: 'google'
+                }])
+                .select()
+                .single();
+
+            if(insertError){
+                console.error('error creating user: ', insertError);
+                throw insertError;
+            }
+            user = newUser;
+        } else if(findError){
+            throw findError;
+        }
+
+        // if user exists but was created via email, update to allow google auth
+        if(user && !user.auth_provider){
+            await supabase
+                .from('users')
+                .update({
+                    google_id: googleUser.id,
+                    auth_provider: 'google',
+                    isverified: true
+                })
+                .eq('id', user.id);
+        }
+
+        // generate your custom JWT token same as login
+        const accessToken = jwt.sign({id: user.id}, process.env.ACCESSTOKEN_SECRET, {
+            expiresIn: process.env.ACCESSTOKEN_EXPIRY,
+        });
+        const refreshToken = jwt.sign({id: user.id}, process.env.REFRESHTOKEN_SECRET, {
+            expiresIn: process.env.REFRESHTOKEN_EXPIRY,
+        });
+
+        // update user with refreshtoken
+        const {error: updateError} =  await supabase
+            .from('users')
+            .update({refresh_token: refreshToken})
+            .eq('id', user.id);
+
+        if(updateError){
+            throw updateError;
+        }
+
+        // set cookies
+        const cookieOptions = {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict'
+        };
+        res.cookie("accessToken", accessToken, cookieOptions);
+        res.cookie("refreshToken", refreshToken, cookieOptions);
+
+        res.status(200).json({
+            success: true,
+            message: "google login successful!",
+            user: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                isverified: user.isverified,
+                auth_provider: user.auth_provider
+            }
+        });
+
+    } catch (error) {
+        console.log(error.message);
+        return res.status(500).json({
+            success: false,
+            message: "internal server error",
+        });
+    }
+};
+
+
+export {register, verify, login, getProfile, logout, googleAuth};
