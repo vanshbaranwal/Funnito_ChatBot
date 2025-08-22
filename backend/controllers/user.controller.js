@@ -1,8 +1,11 @@
-import User from "../models/User.model.js";
+import { supabase } from "../index.js";
+// import User from "../models/User.model.js";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
+import bcrypt from "bcryptjs";
 import sendVerificationEmail from "../utils/sendmail.utils.js";
 import { Stats } from "fs";
+import { asyncWrapProviders } from "async_hooks";
 
 
 // register controller.
@@ -27,11 +30,17 @@ const register = async(req, res) => {
     }
 
     try {
-        // if existing user
-        const existingUser = await User.findOne({
-            email,
-        });
-        console.log("existing user");
+
+        const {data : existingUser, error: findError} = await supabase
+            .from('users')
+            .select('*')
+            .eq('email', email)
+            .single();
+        
+        if(findError && findError.code !== 'PGRST116'){     //PGRST116 means no rows found
+            throw findError;
+        }
+        
         if(existingUser){
             return res.status(400).json({
                 success: false,
@@ -39,20 +48,33 @@ const register = async(req, res) => {
             });
         }
 
+        // hash password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
         // user verification token
         const token = crypto.randomBytes(2).toString("hex"); // this will generate a 4 character long string because 1byte = 2hex characters  
-        console.log("token created successful");
-        const tokenExpiry = Date.now() + 10*60*1000; // the token is set to expire in 10 mins 
+        console.log("token created successfully");
+        const tokenExpiry = new Date(Date.now() + 10*60*1000).toISOString(); // the token is set to expire in 10 mins and TOISOSTRING is used for supabase 
 
         // create a new user 
-        const user = await User.create({
-            name,
-            email,
-            password,
-            // isverified: true, // this is just for the testing purpose (to bypass the verify controller)
-            verificationToken: token,
-            verificationTokenExpiry: tokenExpiry,
-        });
+        const {data: user, error: insertError} = await supabase
+            .from('users')
+            .insert([{
+                name,
+                email,
+                password: hashedPassword,
+                isverified: false,
+                // isverified: true, // this is just for the testing purpose (to bypass the verify controller)
+                verification_token: token,
+                verification_token_expiry: tokenExpiry,
+            }])
+            .select()
+            .single();
+
+        if(insertError){
+            throw insertError;
+        }
+
         console.log("user created success", user);
 
         if(!user){
@@ -87,25 +109,35 @@ const verify = async (req, res) => {
         // get token from body
         const token = req.body.token;
         
-        // get user
-        const user = await User.findOne({
-            verificationToken: token,
-            verificationTokenExpiry: {$gt: Date.now()}, // gt here means greaterthan which says that if the date.now is greater than the time when the message was send.
-        })
-
+        // get user with valid token
+        const {data: user, error: findError} = await supabase
+            .from("users")
+            .select("*")
+            .eq('verification_token', token)
+            .gt('verification_token_expiry', new Date().toISOString())  // gt here means greaterthan which says that if the date.now is greater than the time when the message was send.
+            .single();
+        
         // is user existing
-        if(!user){
-            return res.status(200).json({
+        if(findError || !user){
+            return res.status(400).json({
                 success: false,
-                message: "token invalid",
+                message: "token invalid or expired",
             });
         }
 
-        user.isverified = true;
-        user.verificationToken = undefined;
-        user.verificationTokenExpiry = undefined;
+        // update user verification status
+        const {error : updateError} = await supabase
+            .from('users')
+            .update({
+                isverified: true,
+                verification_token: null,
+                verification_token_expiry: null,
+            })
+            .eq('id', user.id);
 
-        await user.save();
+        if(updateError){
+            throw updateError;
+        }
 
         return res.status(200).json({
             success: true,
@@ -133,9 +165,13 @@ const login = async (req, res) => {
     }
 
     try {
-        const user = await User.findOne({email});
+        const {data: user, error: findError} = await supabase
+            .from('users')
+            .select('*')
+            .eq('email', email)
+            .single();
 
-        if(!user){
+        if(findError || !user){
             return res.status(400).json({
                 success: false,
                 message: "user not found",
@@ -151,8 +187,9 @@ const login = async (req, res) => {
         }
 
         // check password
-        const isPasswordMatch = await user.comparePassword(password);
+        const isPasswordMatch = await bcrypt.compare(password, user.password);
         console.log("password match", isPasswordMatch);
+
         if(!isPasswordMatch){
             return res.status(400).json({
                 success: false,
@@ -161,19 +198,25 @@ const login = async (req, res) => {
         }
 
         // jwt token for the user to access protected routes
-        const accessToken = jwt.sign({id: user._id}, process.env.ACCESSTOKEN_SECRET, {
+        const accessToken = jwt.sign({id: user.id}, process.env.ACCESSTOKEN_SECRET, {
             expiresIn: process.env.ACCESSTOKEN_EXPIRY,
         });
-        const refreshToken = jwt.sign({id: user._id}, process.env.REFRESHTOKEN_SECRET, {
+        const refreshToken = jwt.sign({id: user.id}, process.env.REFRESHTOKEN_SECRET, {
             expiresIn: process.env.REFRESHTOKEN_EXPIRY,
         });
         
-        user.refreshToken = refreshToken; // storing the above refreshtoken in the refreshtoken that we created in the User.model file.
-        await user.save();
+        // update user with refreshtoken 
+        const {error: updateError} = await supabase 
+            .from('users')
+            .update({refresh_token: refreshToken}) // storing the above refreshtoken in the refresh_token that we created in the User.model file.
+            .eq('id', user.id);
+
+        if(updateError){
+            throw updateError;
+        }
         
         // set cookie
         const cookieOptions = {
-            // expires: new Date(Date.now() + 24*60*60*1000),
             httpOnly: true, // this will save us from XSS attack
         }
         res.cookie("accessToken", accessToken, cookieOptions);
@@ -185,6 +228,7 @@ const login = async (req, res) => {
         });
 
     } catch (error) {
+        console.log(error.message);
         return res.status(500).json({
             success: false,
             message: "internal server error",
@@ -199,14 +243,18 @@ const getProfile = async (req, res) => {
         // get user id from request object
         const userId = req.user.id;
 
-        // find user by id
-        const user = await User.findById(userId).select("-password"); // stopping password to go inside this user here. so thats why the '-'(minus) symbol is there
+        // find user by id exclude password
+        const {data: user, error} = await supabase 
+            .from('users')
+            .select('id, name, email, isverified, role')
+            .eq('id', userId)
+            .single();
 
         // check if user exists
-        if(!user){
+        if(error || !user){
             return res.status(400).json({
                 success: false,
-                message: "password is not correct"
+                message: "user not found"
             });
         }
 
@@ -214,7 +262,7 @@ const getProfile = async (req, res) => {
         return res.status(200).json({
             Status: true,
             user: {
-                id: user._id,
+                id: user.id,
                 name: user.name,
                 email: user.email,
                 isverified: user.isverified,
@@ -227,7 +275,7 @@ const getProfile = async (req, res) => {
         console.error("error getting user profile", error);
         return res.status(500).json({
             status: false,
-            message: "error geting user profile",
+            message: "error getting user profile",
         });
     }
 };
@@ -247,16 +295,29 @@ const logout = async(req, res) => {
 
         // check if the user is logged inn
         const refreshDecoded = jwt.verify(token, process.env.REFRESHTOKEN_SECRET);
-        const user = await User.findOne({_id: refreshDecoded.id});
 
-        if(!user){
+        const {data: user, error: findError} = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', refreshDecoded.id)
+            .single();
+
+        if(findError || !user){
             return res.status(401).json({
                 status: false,
                 message: "unauthorized access",
             });
         }
 
-        user.refreshToken = null; // here we are not doing undefined in place of null because this field will be used later
+        // clear refresh token in database
+        const {error: updateError} = await supabase
+            .from('users')
+            .update({refresh_token: null})
+            .eq('id', user.id);
+
+        if(updateError){
+            throw updateError;
+        }
         
         // clear cookie
         res.cookie("accessToken", "", {

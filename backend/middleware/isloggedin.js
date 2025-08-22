@@ -1,4 +1,5 @@
-import User from "../models/User.model.js";
+// import User from "../models/User.model.js";
+import { supabase } from "../index.js";
 import jwt from "jsonwebtoken";
 
 const isLoggedIn = async (req, res, next) => {
@@ -22,25 +23,37 @@ const isLoggedIn = async (req, res, next) => {
             const refreshDecoded = jwt.verify(refreshToken, process.env.REFRESHTOKEN_SECRET);
             console.log(refreshDecoded.id);
 
-            const user = await User.findOne({_id: refreshDecoded.id});
-            console.log(user.email);
+            const {data: user, error: findError} = await supabase
+                .from('users')
+                .select('*')
+                .eq('id', refreshDecoded.id)
+                .single();
 
-            if(!user){
+            if(findError || !user){
                 return res.status(401).json({
                     status: false,
                     message: "unauthorized access",
                 });
             }
+            console.log(user.email);
 
-            const newAccessToken = jwt.sign({id: user._id}, process.env.ACCESSTOKEN_SECRET, {
+            // generate new token
+            const newAccessToken = jwt.sign({id: user.id}, process.env.ACCESSTOKEN_SECRET, {
                 expiresIn: process.env.ACCESSTOKEN_EXPIRY,
             });
-            const newRefreshToken = jwt.sign({id: user._id}, process.env.REFRESHTOKEN_SECRET, {
+            const newRefreshToken = jwt.sign({id: user.id}, process.env.REFRESHTOKEN_SECRET, {
                 expiresIn: process.env.REFRESHTOKEN_EXPIRY,
             });
 
-            user.refreshToken = newRefreshToken;
-            await user.save();
+            // update users refreshtoken in database
+            const {error: updateError} = await supabase
+                .from('users')
+                .update({refresh_token: newRefreshToken})
+                .eq('id', user.id);
+
+            if(updateError){
+                throw updateError;
+            }
 
             const cookieOptions = {
                 httpOnly: true,
@@ -56,24 +69,38 @@ const isLoggedIn = async (req, res, next) => {
 
             // direct login and generate nre access and refresh tokens
             const accessDecoded = jwt.verify(accessToken, process.env.ACCESSTOKEN_SECRET);
-            const user = await User.findOne({_id: accessDecoded.id});
-            if(!user){
+
+            // find user by id using supabase
+            const {data: user, error: findError} = await supabase
+                .from('users')
+                .select('*')
+                .eq('id', accessDecoded.id)
+                .single();
+
+            if(findError || !user){
                 return res.status(401).json({
                     status: false,
                     message: "unauthorized access",
                 });
             }
 
-            const newAccessToken = jwt.sign({id: user._id}, process.env.ACCESSTOKEN_SECRET, {
+            const newAccessToken = jwt.sign({id: user.id}, process.env.ACCESSTOKEN_SECRET, {
                 expiresIn: process.env.ACCESSTOKEN_EXPIRY,
             });
-            const newRefreshToken = jwt.sign({id: user._id}, process.env.REFRESHTOKEN_SECRET, {
+            const newRefreshToken = jwt.sign({id: user.id}, process.env.REFRESHTOKEN_SECRET, {
                 expiresIn: process.env.REFRESHTOKEN_EXPIRY,
             });
 
-            user.refreshToken = newRefreshToken;
-            await user.save();
-
+            // update users refreshtoken in database
+            const {error: updateError} = await supabase
+                .from('users')
+                .update({refresh_token: newRefreshToken})
+                .eq('id', user.id);
+            
+            if(updateError){
+                throw updateError;
+            }
+            
             const cookieOptions = {
                 httpOnly: true,
             };
