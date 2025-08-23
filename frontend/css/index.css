@@ -6,11 +6,11 @@
     box-sizing: border-box;
 }
 #funnito{
-    color: black;
+    color: white;
     padding: 60px;
 }
 #about{
-    color: #000;
+    color: white;
     padding: 60px;
 }
 #header{
@@ -21,7 +21,7 @@
 }
 
 body{
-    background-color: rgb(254,107,64);
+    background-color: black;
     color: white;
 }
 
