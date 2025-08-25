@@ -6,23 +6,24 @@
     box-sizing: border-box;
 }
 #funnito{
-    color: white;
-    padding: 60px;
+    color: #666666;
+    padding: 95px;
 }
 #about{
-    color: white;
-    padding: 60px;
+    color: #666666;
+    padding: 95px;
 }
 #header{
     display: flex;
     justify-content: space-between;
     margin-bottom: 5%;
     margin-top: 1.5%;
+    font-size: 25px;
 }
 
 body{
-    background-color: black;
-    color: white;
+    background-color: #191919;
+    color: #666666;
 }
 
 .start-chatbotBtn-container{
@@ -30,48 +31,59 @@ body{
     align-items: center;
     justify-content: center;
     flex-direction: row;
-    margin-top: 5.5%;
-    gap: 4px;
+    margin-top: 15%;
+    gap: 5px;
+    flex-wrap: wrap;
 }
 
+.start-chatbotBtn-container a:nth-child(3){
+    flex-basis: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 5px;    
+    font: bold;
+    text-decoration: none;
+}
 
 .start-upBtn{
-    background-color: rgb(255,179,102);
+    background-color: #e5e5e5;
     color: black;
-    border-radius: 8px;
+    border-radius: 22px;
     padding: 15px 32px;
     text-align: center;
     text-decoration: none;
-    font-size: 16px;
+    font-size: 25px;
     cursor: pointer;
     transition-duration: 0.5s;
+    width: 190px;
 }
 .start-upBtn:hover{
-    background-color: rgb(165,201,15);
-    color: black;
+    background-color: black;
+    color: white;
+    border: none;
+    outline: none;
+    box-shadow: none;
 }
-
+#google-loginBtn{
+    background-color: white;
+    width: 400px;
+}
+#google-loginBtn:hover{
+    background-color: black;
+    color: white;
+}
 p{
     text-align: center;
-    color: black;
+    margin-top: 5px;
 }
 
-.video-container {
-  position: relative;
-  width: 100%;
-  max-width: 800px;     
-  aspect-ratio: 16/9;    
-  margin: 16px auto;    
-  border-radius: 25px;  
-  overflow: hidden;     
-  box-shadow: 0 10px 30px rgba(248, 232, 232, 0.452);
-  background: #000;      
+::-webkit-scrollbar {
+    display: none;
 }
-.video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;    
-}
-@media (max-width: 480px){
-  .video-container{ max-width: 100%; }
+
+h3{
+    text-align: center;
+    color: white;
+    font-size: 35px;
+    margin-top: 16%;
 }
