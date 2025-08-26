@@ -44,14 +44,13 @@ body{
     font-size: 85px;
 }
 #loginMessage{
-    color: black;
+    color: white;
     text-align: center;
     font-size: 32px;
     margin-top: 8px;
     border: 5px solid rgb(38, 57, 77);
     border-radius: 8px;
     background-color: rgb(38, 57, 77);
-    color: white;
     padding: 8px;
     display: none;
 }
