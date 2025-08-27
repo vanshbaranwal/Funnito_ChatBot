@@ -1,0 +1,46 @@
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body{
+    background-color: rgb(30,30,30);
+    color: white;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+#funnito{
+    color: #666666;
+    padding: 10px;
+}
+#funnito-logo{
+    width: 50px;
+    height: 50px;
+    padding: 10px;
+}
+#header{
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+}
+
+.about-header{
+    text-align: center;
+    margin-top: 2%; 
+}
+
+.about-text{
+    margin: 25px auto;
+    text-align: center;
+    width: 75%;
+    font-size: 35px;
+}
+
+.footer{
+    text-align: end;
+}
+
+::-webkit-scrollbar{
+    display: none;
+}
