@@ -52,7 +52,7 @@ body{
     background-color: rgb(38, 57, 77);
     padding: 8px;
     margin-top: 60px;
-    /* display: none; */
+    display: none;
 }
 #input-row {
     display: flex;

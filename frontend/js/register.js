@@ -5,13 +5,20 @@ document.getElementById("registerForm").addEventListener("submit", async functio
     const name = document.getElementById("name").value;
     const registerEmail = document.getElementById("registerEmail").value;
     const registerPassword = document.getElementById("registerPassword").value;
+    const registerMessage = document.getElementById("registerMessage").value;
+    // const regex = /^[a-zA-Z0-9_]+$/;
 
     try {    
 
         if (!name || !registerEmail || !registerPassword) {
-            document.getElementById("registerMessage").textContent = "Please fill in all fields.";
+            registerMessage.textContent = "Please fill in all fields.";
             return;
         };
+        
+        // if(!regex.test(username)){
+        //     registerMessage.textContent = "the username should contain letters, numbers and underscores."
+        //     return;
+        // }
     
         const res = await fetch("http://localhost:3000/api/v1/users/register", {
             method: "POST",
