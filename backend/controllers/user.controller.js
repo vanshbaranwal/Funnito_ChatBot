@@ -12,6 +12,8 @@ import { asyncWrapProviders } from "async_hooks";
 const register = async(req, res) => {
     // get user data from req body
     const {name, email, password} = req.body;
+    const nameRegex = /^[a-zA-Z0-9_]+$/;
+    const emailRegex_register = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
     // validate data
     if(!name || !email || !password){
@@ -21,7 +23,24 @@ const register = async(req, res) => {
         });
     }
 
-    // password check
+    // uername validation
+    if(!nameRegex.test(name)){
+        // console.log("name validation error is coming.");
+        return res.status(400).json({
+            success: false,
+            message: "username should only contain letters, numbers and underscores.",
+        });
+    }
+
+    // email validation
+    if(!emailRegex_register.test(email)){
+        return res.status(400).json({
+            success: false,
+            message: "enter a valid email address.",
+        });
+    }
+
+    // password check validation
     if(password.length<4){
         return res.status(400).json({
             success: false,
@@ -155,12 +174,21 @@ const verify = async (req, res) => {
 const login = async (req, res) => {
     // get user data
     const {email, password} = req.body;
+    const emailRegex_login = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
     // validate
     if(!email || !password){
         return res.status(400).json({
             success: false,
             message: "all fields required",
+        });
+    }
+    
+    // email validation
+    if(!emailRegex_login.test(email)){
+        return res.status(400).json({
+            success: false,
+            message: "enter a valid email address.",
         });
     }
 
