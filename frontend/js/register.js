@@ -5,7 +5,7 @@ document.getElementById("registerForm").addEventListener("submit", async functio
     const name = document.getElementById("name").value;
     const registerEmail = document.getElementById("registerEmail").value;
     const registerPassword = document.getElementById("registerPassword").value;
-    const registerMessage = document.getElementById("registerMessage").value;
+    const registerMessage = document.getElementById("registerMessage");
 
     try {    
 
