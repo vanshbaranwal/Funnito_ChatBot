@@ -68,10 +68,10 @@ const register = async(req, res) => {
         }
 
         // hash password
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await bcrypt.hash(password, 10); // 10 here tells bcrypt how many times it should process the hashing algorithm. Higher number = more secure, but also slower, 10 is standard.
 
         // user verification token
-        const token = crypto.randomBytes(2).toString("hex"); // this will generate a 4 character long string because 1byte = 2hex characters  
+        const token = crypto.randomInt(1000, 9999); // this will generate a 4 digit random number..  
         console.log("token created successfully");
         const tokenExpiry = new Date(Date.now() + 10*60*1000).toISOString(); // the token is set to expire in 10 mins and TOISOSTRING is used for supabase 
 

@@ -37,8 +37,8 @@ const sendVerificationEmail = async (email, token) => {
                 "If you did not create an account, please ignore this email."
             ].join('\n'),
             html: `
-                <p>Thank you for registering! Please verify your email address to complete your registration.</p>
-                <h2 style="color: rgb(254,107,64);">Your verification code (OTP): <b>${token}</b></h2>
+                <p>Thank you for signing up with Funnito! Please verify your email address to complete your registration.</p>
+                <h2 style="color: rgb(248,62,62);">Your verification code (OTP): <b>${token}</b></h2>
                 <p>This code will expire in 10 minutes.<br>If you did not create an account, please ignore this email.</p>
             `
         };
