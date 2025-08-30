@@ -1,5 +1,4 @@
-
-// get all dom elements
+// getting all the dom elements
 const messageContainer = document.getElementById("messages");
 const messageInput = document.getElementById("messageInput");
 const sendBtn = document.getElementById("sendBtn");
@@ -8,7 +7,7 @@ const fileInput = document.getElementById("fileInput");
 const typingIndicator = document.getElementById("typingIndicator");
 
 // store message pairs (user message with its bot reply)
-let messagePairs = [];
+let messages = [];
 
 // auto resize textarea function
 function autoResize(){
@@ -40,12 +39,15 @@ function getCurrentTime(){
 }
 
 // add message to chat
-function addMessage(content, type, pairId = null, isFile = false){
+function addMessage(content, type, messageId = null, isFile = false){
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${type}`;
-    if(pairId !== null){
-        messageDiv.setAttribute('data-pair-id', pairId);
+
+    //generating unique message id if not provided
+    if(messageId === null){
+        messageId = Date.now() + Math.random();
     }
+    messageDiv.setAttribute('data-message-id', messageId);
 
     let messageText;
 
@@ -75,14 +77,14 @@ function addMessage(content, type, pairId = null, isFile = false){
     messageTime.className = 'message-time';
     messageTime.textContent = getCurrentTime();
 
-    // add delete button only for user message
-    if(type === 'user'){
+    // add delete button for user and bot messages
+    if(type === 'user' || type === 'bot'){
         const deleteBtn = document.createElement('button');
         deleteBtn.className = 'delete-btn';
         deleteBtn.innerHTML = '×';
         deleteBtn.onclick = (e) => {
             e.stopPropagation();
-            deleteMessagePair(pairId);
+            deleteIndividualMessage(messageId);
         };
         messageDiv.appendChild(deleteBtn);
     }
@@ -96,26 +98,19 @@ function addMessage(content, type, pairId = null, isFile = false){
     return messageDiv;
 }
 
-// delete message pair (user message + bot reply to the user)
-function deleteMessagePair(pairId){
-    const userMessage = document.querySelector(`[data-pair-id = "${pairId}"].user`);
-    const botMessage = document.querySelector(`[data-pair-id = "${pairId}"].bot`);
+// delete individual message
+function deleteIndividualMessage(messageId){
+    const messageElement = document.querySelector(`[data-message-id = "${messageId}"]`);
 
-    if(userMessage){
-        userMessage.style.animation = 'fadeOut 0.3s ease-out';
+    if(messageElement){
+        messageElement.style.animation = 'fadeOut 0.3s ease-out';
         setTimeout(() => {
-            userMessage.remove();
-        }, 300);
-    }
-    if(botMessage){
-        botMessage.style.animation = 'fadeOut 0.3s ease-out';
-        setTimeout(() => {
-            botMessage.remove();
+            messageElement.remove();
         }, 300);
     }
 
-    // remove from message pair array
-    messagePairs = messagePairs.filter(pair => pair.Id !== pairId);
+    // remove from messages array
+    messages = messages.filter(msg => msg.id !== messageId);
 }
 
 // show typing indicator
@@ -140,14 +135,14 @@ function sendMessage(){
     const message = messageInput.value.trim();
     if(!message) return;
 
-    // generate unique pair id
-    const pairId = Date.now();
+    // generate unique message id for user message
+    const userMessageId = Date.now() + Math.random();
 
     // add user message
-    addMessage(message, 'user', pairId);
+    addMessage(message, 'user', userMessageId);
 
-    // store the pair
-    messagePairs.push({id: pairId, userMessage: message});
+    // // store the pair
+    // messagePairs.push({id: pairId, userMessage: message});
 
     // clear input
     messageInput.value = '';
@@ -159,25 +154,24 @@ function sendMessage(){
 
     setTimeout(() => {
         hideTypingIndicator();
-        addMessage(message, 'bot', pairId); // echo the same message with same pair id
+        const botMessageId = Date.now() + Math.random();
+        addMessage(message, 'bot', botMessageId); // echo the same message with same pair id
     }, 1000 + Math.random() * 1000); // random delay between 1-2 seconds
 }
 
 // send file function (pdf, images, and other files)
 function sendFile(file){
-    const pairId = Date.now();
+    const userMessageId = Date.now() + Math.random();
 
     // show users uploaded file
-    addMessage(file, 'user', pairId, true);
-
-    // store pair
-    messagePairs.push({id: pairId, userMessage: file.name});
+    addMessage(file, 'user', userMessageId, true);
 
     // bot response (echo file back)
     showTypingIndicator();
     setTimeout(() => {
         hideTypingIndicator();
-        addMessage(file, 'bot', pairId, true);
+        const botMessageId = Date.now() + Math.random();
+        addMessage(file, 'bot', botMessageId, true);
     }, 1000 + Math.random() * 1000);
 }
 
