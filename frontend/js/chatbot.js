@@ -6,7 +6,7 @@ const attachBtn = document.getElementById("attachBtn");
 const fileInput = document.getElementById("fileInput");
 const typingIndicator = document.getElementById("typingIndicator");
 
-// store message pairs (user message with its bot reply)
+// storing user message and bot reply message.
 let messages = [];
 
 // auto resize textarea function
@@ -56,17 +56,27 @@ function addMessage(content, type, messageId = null, isFile = false){
             messageText = document.createElement('a');
             messageText.href = URL.createObjectURL(content);
             messageText.textContent = "📄 " + content.name;
-            messageText.target = "_blank";
+            messageText.target = "_blank"; // "_blank" means to open file in a new tab.
+
         } else if(content.type.startsWith("image/")){
-            messageText = document.createElement('img');
-            messageText.src = URL.createObjectURL(content);
-            messageText.style.maxWidth = "200px";
-            messageText.style.borderRadius = "8px";
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(content);
+            link.target = "_blank";
+
+            img = document.createElement('img');
+            img.src = link.href;
+            img.style.maxWidth = "200px";
+            img.style.borderRadius = "8px";
+
+            link.appendChild(img);
+            messageText = link; // this assigns an <a> tag containing an <img> tag.
+
         } else{
             messageText = document.createElement('a');
             messageText.href = URL.createObjectURL(content);
             messageText.textContent = content.name;
             messageText.download = content.name;
+            messageText.target = "_blank";
         }
     } else{
         messageText = document.createElement('span');
