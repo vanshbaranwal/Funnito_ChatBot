@@ -26,11 +26,15 @@ body{
 .chatbot-header {
     background-color: rgb(30,30,30);
     color:	#cbcbcb;
-    text-align: center;
+    /* text-align: center; */
+    display: flex;
     padding: 15px;
     font-size: 22px;
     font-weight: bold;
     text-decoration: underline;
+}
+.chatbot-header h2{
+    margin-left: 42%;
 }
 
 /* Messages Section */
