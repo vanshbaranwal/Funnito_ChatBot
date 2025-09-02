@@ -295,7 +295,7 @@ const getProfile = async (req, res) => {
 
         // send response
         return res.status(200).json({
-            Status: true,
+            status: true,
             user: {
                 id: user.id,
                 name: user.name,
