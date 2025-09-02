@@ -5,6 +5,36 @@ const sendBtn = document.getElementById("sendBtn");
 const attachBtn = document.getElementById("attachBtn");
 const fileInput = document.getElementById("fileInput");
 const typingIndicator = document.getElementById("typingIndicator");
+// user popup elements
+const userIcon = document.getElementById("userIcon");
+const userPopup = document.getElementById("userPopup");
+const logoutBtn = document.getElementById("logoutBtn");
+
+let userData = null;
+
+async function fetchUserData() {
+    try {
+        const response = await fetch("http://localhost:5500/api/v1/users/get-profile", {
+            method: "GET",
+            credentials: "include" // ensures cookies token are sent
+        });
+
+        if(!response.ok){
+            throw new Error("failed to fetch user profile.");
+        }
+
+        const data = await response.json();
+        userData = {
+            username: data.user.name,
+            email: data.user.email,
+            signedInAt: data.user.created_at,
+        };
+    } catch (error) {
+        console.error("error fetching user profile: ", error);
+    }
+}
+
+
 
 // storing user message and bot reply message.
 let messages = [];
@@ -63,7 +93,7 @@ function addMessage(content, type, messageId = null, isFile = false){
             link.href = URL.createObjectURL(content);
             link.target = "_blank";
 
-            img = document.createElement('img');
+            const img = document.createElement('img');
             img.src = link.href;
             img.style.maxWidth = "200px";
             img.style.borderRadius = "8px";
@@ -211,5 +241,53 @@ fileInput.addEventListener("change", (e) => {
     e.target.value = ''; // reset so the same file can be uploaded again.
 })
 
+// open popup when user icon is clicked
+userIcon.addEventListener("click", (e) => {
+    e.preventDefault();
+
+    if(userData){
+        document.getElementById("popupUsername").textContent = userData.username;
+        document.getElementById("popupEmail").textContent = userData.email;
+        document.getElementById("popupTime").textContent = userData.signedInAt;
+    } else{
+        document.getElementById("popupUsername").textContent = "guest";
+        document.getElementById("popupEmail").textContent = "not logged inn";
+        document.getElementById("popupTime").textContent = "-";
+    }
+    userPopup.style.display = "flex";
+});
+
+logoutBtn.addEventListener("click", async (e) => {
+    e.preventDefault();
+
+    try {
+        // calling backend logout route
+        const response = await fetch("http://localhost:5500/api/v1/users/logout", {
+            method: "POST",
+            credentials: "include"
+        });
+
+        const data = await response.json();
+
+        if(data.status){
+            alert("logged out! successfully!");
+            window.location.href = "/frontend/pages/index.html";
+        } else{
+            alert("log out failed: " + data.message);
+        }
+
+    } catch (error) {
+        console.error("error logging out: ", error);
+        alert("something went wrong while logging out.")
+    }
+});
+window.addEventListener("click", (e) => {
+    if(e.target === userPopup){
+        userPopup.style.display = "none";
+    }
+});
+
+// user profile call
+fetchUserData();
 // initial button state
 updateSendButton();

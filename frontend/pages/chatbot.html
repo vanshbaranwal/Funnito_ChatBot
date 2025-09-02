@@ -9,10 +9,23 @@
 </head>
 <body>
     
+    <!-- user information pop-up -->
+     <div id="userPopup" class="popup">
+        <div class="popup-content">
+            <!-- <span class="close-btn">@times;</span> -->
+            <h3>User Info!</h3>
+            <p><strong>Username:</strong> <span id="popupUsername"></span></p>
+            <p><strong>Email:</strong> <span id="popupEmail"></span></p>
+            <p><strong>signed-in:</strong> <span id="popupTime"></span></p>
+            <button id="logoutBtn" class="logout-btn">Logout</button>
+        </div>
+     </div>
+
+
     <!-- Chatbot Container -->
     <div class="chatbot-container">
         <div class="chatbot-header">
-            <a href=""><img src="/frontend/assets/usericon.png" alt="usericon" width="40px" height="40px"></a>
+            <img src="/frontend/assets/usericon.png" alt="usericon" width="40px" height="40px" id="userIcon">
             <h2>Funnito!</h2>
         </div>
         <div class="chatbot-messages" id="messages">
