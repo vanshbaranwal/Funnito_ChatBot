@@ -28,10 +28,23 @@ const port = process.env.PORT || 3000;
 app.use(express.json());
 app.use(urlencoded({extended: true}));
 
+const allowedOrigins = [
+    process.env.BASE_URL,
+    "http://127.0.0.1:5500",
+    "http://localhost:5500",
+    "http://127.0.0.1:5500/"
+];  
+
 app.use(cors({
-    origin: [process.env.BASE_URL, "http://127.0.0.1:5500", "http://localhost:5500"],
+    origin: function(origin, callback){
+        if(!origin || allowedOrigins.includes(origin)){ // !origin (for postman,curl requests) and allowedOrigins.includes(origin) checks if the reqyest is from above list.
+            callback(null, true);
+        } else{
+            callback(new Error("not allowed by CORS."))
+        }
+    },
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization' || "application/json"],
+    allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true, // this is for cookie support
 }));
 app.use(cookieParser());
